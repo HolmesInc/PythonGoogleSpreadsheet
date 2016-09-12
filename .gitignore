@@ -1,5 +1,5 @@
 # Savaed Google auth tokens
-.credentials/
+worker/.credentials/
 
 # Secret API key
-client_secret.json
+worker/client_secret.json
