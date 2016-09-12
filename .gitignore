@@ -1,0 +1,5 @@
+# Savaed Google auth tokens
+.credentials/
+
+# Secret API key
+client_secret.json
