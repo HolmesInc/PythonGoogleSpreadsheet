@@ -3,3 +3,5 @@ worker/.credentials/
 
 # Secret API key
 worker/client_secret.json
+
+.idea/
