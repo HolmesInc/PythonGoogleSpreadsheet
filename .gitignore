@@ -4,4 +4,8 @@ worker/.credentials/
 # Secret API key
 worker/client_secret.json
 
+# IDE file
 .idea/
+
+# Test of efficiency
+worker/work_checker.py
