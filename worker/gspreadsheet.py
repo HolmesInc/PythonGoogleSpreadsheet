@@ -188,33 +188,117 @@ class SpreadsheetWorker:
             _logger.info('Data was recorded. Response: {}'.format(nice_format(record)))
         return spreadsheet_id
 
-    def add_permission(self, spreadsheet_id, body, token_type):
-        """Send request to change permission for the spreadsheet
+    def set_permission_service(self, spreadsheet_id, token_type, permission_operation, body=None):
+        """
+        If permission operation is adding new permission, then method send request to change permission
+        for the selected spreadsheet.
+        If permission operation is showing all permission, then method send request to get all permissions
+        for the selected spreadsheet.
+
         :param spreadsheet_id: <str> - spreadsheet id
-        :param body: <dict> - properties of request
         :param token_type: <str> - expect 'drive' or 'spreadsheet' token type
+        :param permission_operation: <str> - expect 'add', 'show' or 'remove'
+        :param body: <dict> - properties of request
         :return: <dict> - response from Google
         """
-        service = self.get_connection(token_type)
-        request = service.permissions().create(
-            fileId=spreadsheet_id,
-            sendNotificationEmail=False,
-            body=body
-        ).execute()
-        return request
+        if permission_operation == PERMISSION_OPERATION['ADD']:
+            service = self.get_connection(token_type)
+            request = service.permissions().create(
+                fileId=spreadsheet_id,
+                sendNotificationEmail=False,
+                body=body
+            ).execute()
+            return request
 
-    def show_permissions(self, spreadsheet_id, token_type):
-        """Send request to change permission for the spreadsheet
-            :param spreadsheet_id: <str> - spreadsheet id
-            :param token_type: <str> - expect 'drive' or 'spreadsheet' token type
-            :return: <dict> - response from Google
+        elif permission_operation == PERMISSION_OPERATION['SHOW']:
+            service = self.get_connection(token_type)
+            request = service.permissions().list(
+                fileId=spreadsheet_id,
+                fields='permissions'
+            ).execute()
+            return request
+
+    def add_permission(self, spreadsheet_id, permission_type, token_type='drive', user_email=None):
+        """Add new permission to spreadsheet with id spreadsheet_id
+
+        :param spreadsheet_id: <str> - spreadsheet id
+        :param permission_type: <str> - type of permission, that apply to the spreadsheet
+        :param token_type: <str> - expect 'drive' token type
+        :param user_email: <str> - email of user, to which is added permission
+        :return: response or None
         """
-        service = self.get_connection(token_type)
-        request = service.permissions().list(
-            fileId=spreadsheet_id,
-            fields='permissions'
-        ).execute()
-        return request
+        permissions = {
+            'access_by_link': {
+                'type': 'anyone',
+                'role': 'reader'
+            },
+            'set_writer': {
+                'type': 'user',
+                'role': 'writer',
+                'emailAddress': user_email
+            },
+            'set_reader': {
+                'type': 'user',
+                'role': 'reader',
+                'emailAddress': user_email
+            },
+            'share_everyone': {
+                'type': 'anyone',
+                'role': 'writer',
+            }
+        }
+        response = None
+
+        if permission_type != PERMISSION_TYPES['SHARE_EVERYONE'] and \
+                        permission_type != PERMISSION_TYPES['DEFAULT']:
+            if user_email:
+                if permission_type == PERMISSION_TYPES['SET_READER']:
+                    request = self.set_permission_service(
+                        spreadsheet_id,
+                        token_type,
+                        PERMISSION_OPERATION['ADD'],
+                        permissions['set_reader']
+                    )
+                    response = request
+                elif permission_type == PERMISSION_TYPES['SET_WRITER']:
+                    request = self.set_permission_service(
+                        spreadsheet_id,
+                        token_type,
+                        PERMISSION_OPERATION['ADD'],
+                        permissions['set_writer']
+                    )
+                    response = request
+            else:
+                self.email_error()
+        elif permission_type == PERMISSION_TYPES['SHARE_EVERYONE']:
+            request = self.set_permission_service(
+                spreadsheet_id,
+                token_type,
+                PERMISSION_OPERATION['ADD'],
+                permissions['share_everyone']
+            )
+            response = request
+        elif permission_type == PERMISSION_TYPES['DEFAULT']:
+            request = self.set_permission_service(
+                spreadsheet_id,
+                token_type,
+                PERMISSION_OPERATION['ADD'],
+                permissions['access_by_link']
+            )
+            response = request
+        else:
+            self.input_error()
+
+        return response
+
+    def show_permissions(self, spreadsheet_id, token_type='drive'):
+        """Show all permissions of selected spreadsheet (with id spreadsheet_id)
+        :param spreadsheet_id: <str> - spreadsheet id
+        :param token_type: <str> - expect 'drive' token type
+        :return: response from Google
+        """
+        response = self.set_permission_service(spreadsheet_id, token_type, PERMISSION_OPERATION['SHOW'])
+        return response
 
     def email_error(self):
         return _logger.error('User email is not defined.')
@@ -225,63 +309,32 @@ class SpreadsheetWorker:
     def permission_constructor(self, spreadsheet_id, operation, permission_type=None, user_email=None):
         """Define a new permission for spreadsheet
         :param spreadsheet_id: <str> - spreadsheet id
-        :param operation: <str> - type of operation with permission. Expect 'add', 'remove' or 'show'
-        :param permission_type: <str> - type of permission, that apply to the spreadsheet
+        :param operation: <str> - type of operation with permission. Expect 'add', 'remove' or 'show';
+            selecting from global PERMISSION_OPERATION
+        :param permission_type: <str> - type of permission, that apply to the spreadsheet;
+            selecting from global PERMISSION_TYPES
         :param user_email: <str> - email of user, to which is added permission
         :return: response from Google or error
         """
         token_type = DRIVE_TOKEN
 
         if operation == PERMISSION_OPERATION['ADD']:
-            permissions = {
-                'access_by_link': {
-                    'type': 'anyone',
-                    'role': 'reader'
-                },
-                'set_writer': {
-                    'type': 'user',
-                    'role': 'writer',
-                    'emailAddress': user_email
-                },
-                'set_reader': {
-                    'type': 'user',
-                    'role': 'reader',
-                    'emailAddress': user_email
-                },
-                'share_everyone': {
-                    'type': 'anyone',
-                    'role': 'writer',
-                }
-            }
-            response = None
-            if permission_type != PERMISSION_TYPES['SHARE_EVERYONE'] and \
-                            permission_type != PERMISSION_TYPES['DEFAULT']:
-                if user_email:
-                    if permission_type == PERMISSION_TYPES['SET_READER']:
-                        request = self.add_permission(spreadsheet_id, permissions['set_reader'], token_type)
-                        response = request
-                    elif permission_type == PERMISSION_TYPES['SET_WRITER']:
-                        request = self.add_permission(spreadsheet_id, permissions['set_writer'], token_type)
-                        response = request
-                else:
-                    self.email_error()
-            elif permission_type == PERMISSION_TYPES['SHARE_EVERYONE']:
-                request = self.add_permission(spreadsheet_id, permissions['share_everyone'], token_type)
-                response = request
-            elif permission_type == PERMISSION_TYPES['DEFAULT']:
-                request = self.add_permission(spreadsheet_id, permissions['access_by_link'], token_type)
-                response = request
-            else:
-                self.input_error()
-
-            if response:
+            try:
+                response = self.add_permission(spreadsheet_id, permission_type, token_type, user_email)
                 _logger.info('Received response {}'.format(nice_format(response)))
-            else:
-                _logger.error('Invalid data')
+                return response
+            except:
+                _logger.error('Invalid data. Please, check the input data')
+                return None
 
         elif operation == PERMISSION_OPERATION['SHOW']:
-            response = self.show_permissions(spreadsheet_id, token_type)
-            _logger.info('Received response {}'.format(nice_format(response)))
+            try:
+                response = self.show_permissions(spreadsheet_id, token_type)
+                _logger.info('Received response {}'.format(nice_format(response)))
+                return response
+            except:
+                _logger.error('Invalid data. Please, check the input data')
+                return None
 
 
 
