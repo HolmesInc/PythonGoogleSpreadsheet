@@ -184,6 +184,7 @@ class SpreadsheetWorker:
                 range=range_body
             ).execute()
             values = request.get('values')
+            _logger.info('Received values: {}'.format(nice_format(values)))
             return values
         except:
             _logger.error('Input Error. Try to check your input data.')
