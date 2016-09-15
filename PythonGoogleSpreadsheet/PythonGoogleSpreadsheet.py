@@ -15,7 +15,6 @@ try:
 except ImportError:
     flags = None
 
-CLIENT_SECRET_FILE = 'client_secret.json'
 DISCOVERY_URL = 'https://sheets.googleapis.com/v4/spreadsheets'
 DRIVE_TOKEN = 'drive'
 SPREADSHEET_TOKEN = 'spreadsheet'
@@ -42,8 +41,9 @@ def nice_format(data):
 
 
 class SpreadsheetWorker:
-    def __init__(self, title='New SpreadSheet', app_name='Creating Google SpreadSheets'):
+    def __init__(self, client_secret_json, title='New SpreadSheet', app_name='Creating Google SpreadSheets'):
         self.SPREADSHEET_TITLE = title
+        self.CLIENT_SECRET_FILE = client_secret_json
         self.APPLICATION_NAME = app_name
 
     def credentials_path_composer(self, token_type):
@@ -93,7 +93,7 @@ class SpreadsheetWorker:
             store = oauth2client.file.Storage(credential_path)
             credentials = store.get()
             if not credentials or credentials.invalid:
-                flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, self.get_scope(token_type))
+                flow = client.flow_from_clientsecrets(self.CLIENT_SECRET_FILE, self.get_scope(token_type))
                 flow.user_agent = self.APPLICATION_NAME
                 if flags:
                     credentials = tools.run_flow(flow, store, flags)
@@ -309,7 +309,7 @@ class SpreadsheetWorker:
     def show_permissions(self, spreadsheet_id):
         """Show all permissions of selected spreadsheet (with id spreadsheet_id)
         :param spreadsheet_id: <str> - spreadsheet id
-        :return: permissions
+        :return: <dict> - permissions
         """
         token_type = DRIVE_TOKEN
         try:

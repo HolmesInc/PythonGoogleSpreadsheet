@@ -1,11 +1,18 @@
 # Savaed Google auth tokens
-worker/.credentials/
+python_google_spreadsheet/.credentials/
+.credentials/
 
 # Secret API key
-worker/client_secret.json
+client_secret.json
 
 # IDE file
 .idea/
 
 # Test of efficiency
-worker/work_checker.py
+work_checker.py
+
+# Package files
+PythonGoogleSpreadsheet.egg-info/
+dist/
+.pypirc
+

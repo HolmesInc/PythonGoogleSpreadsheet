@@ -1,0 +1,54 @@
+1) Create client_secret.json in Google APIs Console:
+- Create new project in Google APIs Console(https://console.developers.google.com/iam-admin/projects);
+- Open the Credentials page (https://console.developers.google.com/apis/credentials) and create new credentials Add credentials > OAuth 2.0 client ID;
+- In 'Type of application' select 'Other types' and enter the name of client(for example 'Spreedsheet client') and press 'Create';
+- Select your created client and download it like a JSON file;
+- Rename json file to 'client_secret.json' and put it to your project dir
+
+2) Create an instance of an object:
+- Import SpreadsheetWorker and PERMISSION_TYPES to your project
+- Сreate an instance of the class SpreadsheetWorker and pass to him a path to your client_secret.json file as first argument. Then you can pass title spreadsheet, that will be created
+
+REMARK: when you run creating of spreadsheet for the first time and accept agreement in your browser, may happen, that your spreadsheet will not created. To solve this problem, just run script again. This problem is connected with the creation of .credentials directory. 
+
+3) Methods of python-google-spreadsheet:
+- spreadsheet_constructor: 
+	Create new Google Spreadsheet
+	If output_data not define, spreadsheet generator create new empty spreadsheet with access permission only for user, who allowed using his data for app (in browser). Else create new spreadsheet with access permission only for user, who allowed using his data for app (in browser) and data from output_data
+	
+	:param output_data: <list> - data for recording to Spreadsheet (if not specified, spreadsheet will be create empty)
+		example:
+		output_data = [
+			['Iron Man', 'Tony Stark'],
+            [43, 1.75, 80],
+            ['Just like his costume;-]']
+        ]
+	:return: new spreadsheet id
+
+- record_data:
+	Record data to spreadsheet
+
+	:param output_data: <list> - data for recording to Spreadsheet
+	:param spreadsheet_id: <str> - id of modifying spreadsheet
+	:return: <dict> - response from Google
+
+- add_permission:
+	Add new permission to spreadsheet with id spreadsheet_id
+
+	:param spreadsheet_id: <str> - spreadsheet id
+	:param permission_type: <str> - type of permission, that apply to the spreadsheet
+	:param user_email: <str> - email of user, to which is added permission
+	:return: response or None
+
+- show_permissions:
+	Show all permissions of selected spreadsheet (with id spreadsheet_id)
+	
+	:param spreadsheet_id: <str> - spreadsheet id
+	:return: <dict> - permissions
+
+- remove_permission:
+	Remove permission by id of permission
+	
+	:param spreadsheet_id: <str> - spreadsheet id
+	:param permission_id: <str> - id of permission to delete(can get in from response of show_permission-method)
+	:return: ''
