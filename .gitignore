@@ -10,3 +10,8 @@ client_secret.json
 
 # Test of efficiency
 work_checker.py
+
+# Package files
+PythonGoogleSpreadsheet.egg-info/
+dist/
+

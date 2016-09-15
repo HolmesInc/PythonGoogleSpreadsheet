@@ -9,6 +9,8 @@
 - Import SpreadsheetWorker and PERMISSION_TYPES to your project
 - Сreate an instance of the class SpreadsheetWorker and pass to him a path to your client_secret.json file as first argument. Then you can pass title spreadsheet, that will be created
 
+REMARK: when you run creating of spreadsheet for the first time and accept agreement in your browser, may happen, that your spreadsheet will not created. To solve this problem, just run script again. This problem is connected with the creation of .credentials directory. 
+
 3) Methods of python-google-spreadsheet:
 - spreadsheet_constructor: 
 	Create new Google Spreadsheet
