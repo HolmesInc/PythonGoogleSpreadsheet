@@ -12,11 +12,11 @@
 REMARK: when you run creating of spreadsheet for the first time and accept agreement in your browser, may happen, that your spreadsheet will not created. To solve this problem, just run script again. This problem is connected with the creation of .credentials directory. 
 
 3) Methods of python-google-spreadsheet:
-- spreadsheet_constructor: 
+- spreadsheet_constructor(output_data):
 	Create new Google Spreadsheet
 	If output_data not define, spreadsheet generator create new empty spreadsheet with access permission only for user, who allowed using his data for app (in browser). Else create new spreadsheet with access permission only for user, who allowed using his data for app (in browser) and data from output_data
 	
-	:param output_data: <list> - data for recording to Spreadsheet (if not specified, spreadsheet will be create empty)
+	:param output_data(non-requirement): <list> - data for recording to Spreadsheet (if not specified, spreadsheet will be create empty)
 		example:
 		output_data = [
 			['Iron Man', 'Tony Stark'],
@@ -25,28 +25,36 @@ REMARK: when you run creating of spreadsheet for the first time and accept agree
         ]
 	:return: new spreadsheet id
 
-- record_data:
+- record_data(output_data, spreadsheet_id):
 	Record data to spreadsheet
 
 	:param output_data: <list> - data for recording to Spreadsheet
 	:param spreadsheet_id: <str> - id of modifying spreadsheet
 	:return: <dict> - response from Google
 
-- add_permission:
+- get_spreadsheet_data(spreadsheet_id, sheet_name, sheet_range):
+    Get data from spreadsheet by sheet name and sheet range
+
+    :param spreadsheet_id: <str> - id of modifying spreadsheet
+    :param sheet_name: <str> - name of sheet from which the data will be taken
+    :param sheet_range: <str> - range of columns(Example - 'A3:B10').
+    :return: <list> - array of values from selected sheet in spreadsheet
+
+- add_permission(spreadsheet_id, permission_type, user_email):
 	Add new permission to spreadsheet with id spreadsheet_id
 
 	:param spreadsheet_id: <str> - spreadsheet id
 	:param permission_type: <str> - type of permission, that apply to the spreadsheet
-	:param user_email: <str> - email of user, to which is added permission
+	:param user_email(non-requirement): <str> - email of user, to which is added permission
 	:return: response or None
 
-- show_permissions:
+- show_permissions(spreadsheet_id):
 	Show all permissions of selected spreadsheet (with id spreadsheet_id)
 	
 	:param spreadsheet_id: <str> - spreadsheet id
 	:return: <dict> - permissions
 
-- remove_permission:
+- remove_permission(spreadsheet_id, permission_id):
 	Remove permission by id of permission
 	
 	:param spreadsheet_id: <str> - spreadsheet id

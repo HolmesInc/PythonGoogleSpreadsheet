@@ -166,6 +166,29 @@ class SpreadsheetWorker:
         )
         return request.get('spreadsheetId')
 
+    def get_spreadsheet_data(self, spreadsheet_id, sheet_name, sheet_range):
+        """Get data from spreadsheet by sheet name and sheet range
+
+        :param spreadsheet_id: <str> - id of modifying spreadsheet
+        :param sheet_name: <str> - name of sheet from which the data will be taken
+        :param sheet_range: <str> - range of columns(Example - 'A3:B10').
+        :return: <list> - array of values from selected sheet in spreadsheet
+        """
+        token_type = SPREADSHEET_TOKEN
+        range_body = str(sheet_name) + '!' + str(sheet_range)
+
+        try:
+            service = self.get_connection(token_type)
+            request = service.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id,
+                range=range_body
+            ).execute()
+            values = request.get('values')
+            return values
+        except:
+            _logger.error('Input Error. Try to check your input data.')
+            return None
+
     def spreadsheet_constructor(self, output_data=None):
         """Create new Google Spreadsheet
         If output_data not define, spreadsheet generator create new empty spreadsheet with access
@@ -202,6 +225,7 @@ class SpreadsheetWorker:
         :param token_type: <str> - expect 'drive' or 'spreadsheet' token type
         :param permission_operation: <str> - expect 'add', 'show' or 'remove'
         :param body: <dict> - properties of request
+        :param permission_id: <str> - id of permission to delete(can get in from response of show_permission-method)
         :return: <dict> - response from Google
         """
         if permission_operation == PERMISSION_OPERATION['ADD']:
