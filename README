@@ -11,7 +11,10 @@
 
 !!!REMARK!!!: when you run creating of spreadsheet for the first time and accept agreement in your browser, may happen, that your spreadsheet will not created. To solve this problem, just run script again. This problem is connected with the creation of .credentials directory.
 
-3) Methods of python-google-spreadsheet:
+3) Import package:
+from PythonGoogleSpreadsheet.PythonGoogleSpreadsheet import SpreadsheetWorker, PERMISSION_TYPES
+
+Methods of python-google-spreadsheet:
 - spreadsheet_constructor(output_data):
 	Create new Google Spreadsheet
 	If output_data not define, spreadsheet generator create new empty spreadsheet with access permission only for user, who allowed using his data for app (in browser). Else create new spreadsheet with access permission only for user, who allowed using his data for app (in browser) and data from output_data
