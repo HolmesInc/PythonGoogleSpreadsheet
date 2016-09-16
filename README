@@ -4,6 +4,7 @@
 - In 'Type of application' select 'Other types' and enter the name of client(for example 'Spreedsheet client') and press 'Create';
 - Select your created client and download it like a JSON file;
 - Rename json file to 'client_secret.json' and put it to your project dir
+- Activate Google Drive API and Google Sheets API in Google Dev. Console (https://console.developers.google.com/apis/library)
 
 2) Create an instance of an object:
 - Import SpreadsheetWorker and PERMISSION_TYPES to your project
