@@ -118,17 +118,17 @@ class SpreadsheetWorker:
             service = discovery.build('drive', 'v3', http=http)
         return service
 
-    def record_data(self, output_data, spreadsheet_id):
+    def record_data(self, output_data, spreadsheet_id, sheet_range=None):
         """Record data to spreadsheet
 
         :param output_data: <list> - data for recording to Spreadsheet
         :param spreadsheet_id: <str> - id of modifying spreadsheet
+        :param sheet_range: <str> - range of columns(Example - 'A3:B10').
         :return: <dict> - response from Google
         """
         token_type = SPREADSHEET_TOKEN
         ascii_number = 96  # number of last non alphabet digit in ASCII table, for setting a second part of table-range
         max_column = 0
-        range_begin = 'A1'
         value_input_option = "USER_ENTERED"  # according to Google Sheets API manual:
         #  "The values will be parsed as if the user typed them into the UI"
 
@@ -138,13 +138,21 @@ class SpreadsheetWorker:
         body = {
             'values': output_data
         }
-        range_name = range_begin + ':' + chr(ascii_number + max_column) + str(len(output_data))
-
         service = self.get_connection(token_type)
-        request = service.spreadsheets().values().update(
-            spreadsheetId=spreadsheet_id, range=range_name,
-            valueInputOption=value_input_option, body=body
-        ).execute()
+        if sheet_range:
+            range_name = sheet_range
+        else:
+            range_begin = 'A1'
+            range_name = range_begin + ':' + chr(ascii_number + max_column) + str(len(output_data))
+        try:
+            request = service.spreadsheets().values().update(
+                spreadsheetId=spreadsheet_id, range=range_name,
+                valueInputOption=value_input_option, body=body
+            ).execute()
+            _logger.info('Data has received')
+        except:
+            _logger.error('Seems to be you pass invalid data. Please, check you input data and try again')
+            request = None
         return request
 
     def create_spreadsheet(self):
@@ -171,7 +179,7 @@ class SpreadsheetWorker:
 
         :param spreadsheet_id: <str> - id of modifying spreadsheet
         :param sheet_name: <str> - name of sheet from which the data will be taken
-        :param sheet_range: <str> - range of columns(Example - 'A3:B10').
+        :param sheet_range: <str> - range of columns(Example - 'A3:B10')
         :return: <list> - array of values from selected sheet in spreadsheet
         """
         token_type = SPREADSHEET_TOKEN
