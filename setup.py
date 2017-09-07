@@ -10,7 +10,6 @@ except:
 setup(
     name='PythonGoogleSpreadsheet',
     version='0.4.0',
-    packages=find_packages(),
     install_requires=[
         'apiclient',
         'argparse',

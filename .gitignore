@@ -15,4 +15,5 @@ work_checker.py
 PythonGoogleSpreadsheet.egg-info/
 dist/
 .pypirc
+venv/
 
