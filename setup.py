@@ -9,7 +9,7 @@ except:
 
 setup(
     name='PythonGoogleSpreadsheet',
-    version='0.4.0',
+    version='0.4.3',
     install_requires=[
         'apiclient',
         'argparse',
@@ -25,14 +25,13 @@ setup(
         'six',
         'uritemplate',
         'urllib3',
-        'wsgiref'
-
     ],
     author="Andrew Babenko",
     author_email="andruonline11@gmail.com",
     description='Simple wrapper to create Google Spreadsheet, using Python 3+"',
     license="LICENSE",
     url='https://github.com/HolmesInc/PythonGoogleSpreadsheet',
+    packages=['PythonGoogleSpreadsheet'],
     include_package_data=True,
     classifiers=[
         "Intended Audience :: Developers",
