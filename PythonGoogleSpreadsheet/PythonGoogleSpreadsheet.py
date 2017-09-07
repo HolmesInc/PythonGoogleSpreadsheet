@@ -2,6 +2,7 @@ import httplib2
 from apiclient import discovery
 import oauth2client
 from oauth2client import client, tools
+from oauth2client.service_account import ServiceAccountCredentials
 
 import os
 import pprint
@@ -88,21 +89,9 @@ class SpreadsheetWorker:
         :param token_type: <str> - expect 'drive' or 'spreadsheet' token type
         :return: Credentials, the obtained credential.
         """
-        credential_path = self.credentials_path_composer(token_type)
-        if credential_path:
-            store = oauth2client.file.Storage(credential_path)
-            credentials = store.get()
-            if not credentials or credentials.invalid:
-                flow = client.flow_from_clientsecrets(self.CLIENT_SECRET_FILE, self.get_scope(token_type))
-                flow.user_agent = self.APPLICATION_NAME
-                if flags:
-                    credentials = tools.run_flow(flow, store, flags)
-                else:  # Needed only for compatibility with Python 2.6
-                    credentials = tools.run(flow, store)
-                _logger.warning('Storing credentials to ' + credential_path)
-            return credentials
-        else:
-            return None
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(self.CLIENT_SECRET_FILE,
+                                                                       self.get_scope(token_type))
+        return credentials
 
     def get_connection(self, token_type):
         """Creates a Sheets API service object
@@ -132,7 +121,7 @@ class SpreadsheetWorker:
         value_input_option = "USER_ENTERED"  # according to Google Sheets API manual:
         #  "The values will be parsed as if the user typed them into the UI"
 
-        for i in xrange(len(output_data)):
+        for i in range(len(output_data)):
             if max_column < len(output_data[i]):
                 max_column = len(output_data[i])
         body = {
@@ -185,18 +174,14 @@ class SpreadsheetWorker:
         token_type = SPREADSHEET_TOKEN
         range_body = str(sheet_name) + '!' + str(sheet_range)
 
-        try:
-            service = self.get_connection(token_type)
-            request = service.spreadsheets().values().get(
-                spreadsheetId=spreadsheet_id,
-                range=range_body
-            ).execute()
-            values = request.get('values')
-            _logger.info('Received values: {}'.format(nice_format(values)))
-            return values
-        except:
-            _logger.error('Input Error. Try to check your input data.')
-            return None
+        service = self.get_connection(token_type)
+        request = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=range_body
+        ).execute()
+        values = request.get('values')
+        _logger.info('Received values: {}'.format(nice_format(values)))
+        return values
 
     def spreadsheet_constructor(self, output_data=None):
         """Create new Google Spreadsheet
@@ -214,14 +199,11 @@ class SpreadsheetWorker:
         ]
         :return: new spreadsheet id
         """
-        try:
-            spreadsheet_id = self.create_spreadsheet()
-            if output_data:
-                record = self.record_data(output_data, spreadsheet_id)
-                _logger.info('Data was recorded. Response: {}'.format(nice_format(record)))
-            return spreadsheet_id
-        except:
-            _logger.error('There was some error.. Please, check input data and try again')
+        spreadsheet_id = self.create_spreadsheet()
+        if output_data:
+            record = self.record_data(output_data, spreadsheet_id)
+            _logger.info('Data was recorded. Response: {}'.format(nice_format(record)))
+        return spreadsheet_id
 
     def set_permission_service(self, spreadsheet_id, token_type, permission_operation, body=None, permission_id=None):
         """
@@ -345,14 +327,10 @@ class SpreadsheetWorker:
         :return: <dict> - permissions
         """
         token_type = DRIVE_TOKEN
-        try:
-            response = self.set_permission_service(spreadsheet_id, token_type, PERMISSION_OPERATION['SHOW'])
-            spreadsheet_permissions = response['permissions']
-            _logger.info('Received response {}'.format(nice_format(spreadsheet_permissions)))
-            return spreadsheet_permissions
-        except:
-            _logger.error('Invalid data. Please, check the input data')
-            return None
+        response = self.set_permission_service(spreadsheet_id, token_type, PERMISSION_OPERATION['SHOW'])
+        spreadsheet_permissions = response['permissions']
+        _logger.info('Received response {}'.format(nice_format(spreadsheet_permissions)))
+        return spreadsheet_permissions
 
     def remove_permission(self, spreadsheet_id, permission_id):
         """Remove permission by id of permission
@@ -361,17 +339,10 @@ class SpreadsheetWorker:
         :return: ''
         """
         token_type = DRIVE_TOKEN
-        try:
-            response = self.set_permission_service(
-                spreadsheet_id,
-                token_type,
-                PERMISSION_OPERATION['REMOVE'],
-                permission_id=permission_id)
-            _logger.info('Received response {}'.format(nice_format(response)))
-            return response
-        except:
-            _logger.error('Invalid data. Please, check the input data')
-            return None
+        response = self.set_permission_service(spreadsheet_id, token_type,PERMISSION_OPERATION['REMOVE'],
+            permission_id=permission_id)
+        _logger.info('Received response {}'.format(nice_format(response)))
+        return response
 
     def email_error(self):
         return _logger.error('User email is not defined.')

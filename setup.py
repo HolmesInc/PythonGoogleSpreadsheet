@@ -1,21 +1,40 @@
+"""Unofficial wrapper for Google Sheets API, based on python 3.5+
+See:
+https://github.com/HolmesInc/PythonGoogleSpreadsheet
+"""
 try:
     from setuptools import setup, find_packages
-except: 
+except:
     from distutils.core import setup
 
 setup(
-    name = "PythonGoogleSpreadsheet",
-    version = '0.3',
-    packages = find_packages(),
-    requires = [],
-    author = "Andrew Babenko",
-    author_email = "andruonline11@gmail.com",
-    description = "Simple framework to create Google Spreadsheet with python",
-    long_description = open('README').read(),
-    license = "LICENSE",
-    keywords = "'google-spreadsheet', 'spreadsheet', 'create-google-spreadsheet'",
-    url = "https://github.com/HolmesInc/gspreadsheet-py",
-    include_package_data = True,
+    name='PythonGoogleSpreadsheet',
+    version='0.4.0',
+    packages=find_packages(),
+    install_requires=[
+        'apiclient',
+        'argparse',
+        'google',
+        'google-api-python-client',
+        'httplib2',
+        'oauth2client',
+        'pyasn1',
+        'pyasn1-modules',
+        'requests',
+        'rsa',
+        'simplejson',
+        'six',
+        'uritemplate',
+        'urllib3',
+        'wsgiref'
+
+    ],
+    author="Andrew Babenko",
+    author_email="andruonline11@gmail.com",
+    description='Simple wrapper to create Google Spreadsheet, using Python 3+"',
+    license="LICENSE",
+    url='https://github.com/HolmesInc/PythonGoogleSpreadsheet',
+    include_package_data=True,
     classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
