@@ -17,4 +17,4 @@ dist/
 .pypirc
 venv/
 
-examples/client_secret.json
+
