@@ -84,7 +84,8 @@ class SpreadsheetWorker:
         return service
 
     def record_data(self, output_data, spreadsheet_id, sheet_range=None):
-        """Recording data to the spreadsheet
+        """Recording data to the spreadsheet. If sheet_range was specified, data records according to specified range.
+        Otherwise recording starts from A1:A1
 
         :param output_data: <list> - data for recording to Spreadsheet
         :param spreadsheet_id: <str> - id of modifying spreadsheet
