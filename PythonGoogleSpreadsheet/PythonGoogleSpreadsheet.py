@@ -39,6 +39,12 @@ def _nice_format(data):
     return pprint.pformat(data, indent=4)
 
 
+class _Spreadsheet:
+    def __init__(self, spreadsheet_url, spreadsheet_id):
+        self.spreadsheet_url = spreadsheet_url
+        self.spreadsheet_id = spreadsheet_id
+
+
 class SpreadsheetWorker:
     def __init__(self, client_secret_json, title='New SpreadSheet', app_name='Creating Google SpreadSheets'):
         self.SPREADSHEET_TITLE = title
@@ -134,7 +140,7 @@ class SpreadsheetWorker:
         _logger.info('New spreadsheet with URL {} was created'.format(
             'https://docs.google.com/spreadsheets/d/' + request.get('spreadsheetId'))
         )
-        return request.get('spreadsheetId')
+        return _Spreadsheet(request.get('spreadsheetUrl'), request.get('spreadsheetId'))
 
     def get_spreadsheet_data(self, spreadsheet_id, sheet_name, sheet_range):
         """Getting data from spreadsheet by sheet name and sheet range
@@ -168,13 +174,13 @@ class SpreadsheetWorker:
             [43, 1.75, 80],
             ['Just like his costume;-]']
         ]
-        :return: <str> - the id of created spreadsheet
+        :return: <obj> - object of class _Spreadsheet
         """
-        spreadsheet_id = self._create_spreadsheet()
-        if output_data:
-            record = self.record_data(output_data, spreadsheet_id)
+        spreadsheet_object = self._create_spreadsheet()
+        if output_data is not None:
+            record = self.record_data(output_data, spreadsheet_object.spreadsheet_id)
             _logger.info('Data was recorded. Response: {}'.format(_nice_format(record)))
-        return spreadsheet_id
+        return spreadsheet_object
 
     def _set_permission_service(self, spreadsheet_id, token_type, permission_operation, body=None, permission_id=None):
         """ If permission_operation is adding new permission, then method send request to change permission
